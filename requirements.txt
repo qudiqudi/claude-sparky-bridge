@@ -1,0 +1,5 @@
+# Pinned on purpose, so a rebuild gives the same image.
+# No `anthropic` package: the bridge runs the pinned `claude` binary with the OAuth token.
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+jsonschema==4.25.1

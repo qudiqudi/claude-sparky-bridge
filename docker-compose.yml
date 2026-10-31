@@ -1,0 +1,49 @@
+# claude-sparky-bridge
+#
+# The container joins the Docker network of your SparkyFitness stack and is
+# reachable only there: no published port. SparkyFitness reaches it at
+# http://claude-sparky-bridge:8080/v1 (service type "OpenAI Compatible").
+name: claude-sparky-bridge
+
+services:
+  bridge:
+    build: .
+    image: claude-sparky-bridge:latest
+    container_name: claude-sparky-bridge
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      TZ: ${TZ:-UTC}
+      # Token of your Claude subscription, from `claude setup-token`.
+      CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:?set CLAUDE_CODE_OAUTH_TOKEN}
+      # Shared secret. Enter the same value as the API key in SparkyFitness.
+      BRIDGE_TOKEN: ${BRIDGE_TOKEN:?set BRIDGE_TOKEN}
+      BRIDGE_MODEL: ${BRIDGE_MODEL:-sonnet}
+      BRIDGE_CLASSIFIER_MODEL: ${BRIDGE_CLASSIFIER_MODEL:-haiku}
+      BRIDGE_EFFORT: ${BRIDGE_EFFORT:-low}
+      BRIDGE_DAILY_LIMIT: ${BRIDGE_DAILY_LIMIT:-300}
+      BRIDGE_TIMEOUT_S: ${BRIDGE_TIMEOUT_S:-240}
+      # Size limits (bytes) and parallel claude processes. See README, Settings.
+      BRIDGE_MAX_BODY_BYTES: ${BRIDGE_MAX_BODY_BYTES:-25000000}
+      BRIDGE_MAX_IMAGE_BYTES: ${BRIDGE_MAX_IMAGE_BYTES:-12000000}
+      BRIDGE_MAX_TOTAL_IMAGE_BYTES: ${BRIDGE_MAX_TOTAL_IMAGE_BYTES:-16000000}
+      BRIDGE_MAX_IMAGES: ${BRIDGE_MAX_IMAGES:-4}
+      BRIDGE_MAX_PROMPT_BYTES: ${BRIDGE_MAX_PROMPT_BYTES:-900000}
+      BRIDGE_MAX_CONCURRENT: ${BRIDGE_MAX_CONCURRENT:-2}
+      BRIDGE_MAX_QUEUED: ${BRIDGE_MAX_QUEUED:-8}
+      # Cache mark on the tool list of each chat request. See README, Settings.
+      BRIDGE_CACHE_TOOLS: ${BRIDGE_CACHE_TOOLS:-1}
+    volumes:
+      # CLI state and the daily counter.
+      - bridge-data:/data
+    networks:
+      - sparkyfitness
+
+volumes:
+  bridge-data:
+
+networks:
+  sparkyfitness:
+    external: true
+    name: ${SPARKY_NETWORK:?set SPARKY_NETWORK (see README, step 4)}

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "deny": ["Bash", "Read", "Write", "Edit", "NotebookEdit", "Grep", "Glob", "WebFetch", "WebSearch", "Task", "Agent"],
+    "allow": []
+  },
+  "includeCoAuthoredBy": false
+}
